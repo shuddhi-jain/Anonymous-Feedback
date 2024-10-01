@@ -9,10 +9,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<FeedbackForm />} /> {/* Main feedback form */}
-        <Route path="/admin" element={<AdminPanel />} /> {/* Admin panel */}
-        <Route path="/login" element={<AdminLogin />} /> {/* Admin login */}
-        <Route path="/auth" element={<UserAuth />} /> {/* User authentication */}
+        {/* Main feedback form route */}
+        <Route path="/" element={<FeedbackForm />} />
+
+        {/* Admin panel route */}
+        <Route path="/admin" element={<AdminPanel />} />
+
+        {/* Admin login route */}
+        <Route path="/login" element={<AdminLogin />} />
+
+        {/* User authentication route (login/register) */}
+        <Route path="/auth" element={<UserAuth />} />
       </Routes>
     </Router>
   );

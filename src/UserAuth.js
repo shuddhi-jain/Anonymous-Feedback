@@ -1,29 +1,21 @@
 import React, { useState } from 'react';
-import { Client, Account } from 'appwrite';
 import { useNavigate } from 'react-router-dom';
-
-const client = new Client();
-
-client
-  .setEndpoint('https://cloud.appwrite.io/v1')  // Your Appwrite Endpoint
-  .setProject('66fa9856001dec597c51');               // Your project ID
-
-const account = new Account(client);
+import { account } from './appwrite'; // Import account from appwrite.js
 
 function UserAuth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  const navigate = useNavigate();  // For navigation
+  const navigate = useNavigate(); // For navigation
 
   const handleAuth = async (e) => {
     e.preventDefault();
 
     if (!password || password.length < 6) {
-        setMessage('Password must be at least 6 characters long.');
-        return;
-      }
+      setMessage('Password must be at least 6 characters long.');
+      return;
+    }
 
     try {
       if (isLogin) {
@@ -31,10 +23,10 @@ function UserAuth() {
         const session = await account.createSession(email, password);
         console.log('Session:', session);
         setMessage('Login successful!');
-        navigate('/');
+        navigate('/'); // Redirect to home page after successful login
       } else {
-        // User registration with auto-generated unique user ID
-        const user = await account.create('unique()', email, password); // Ensures the userId is automatically generated
+        // User registration
+        const user = await account.create('unique()', email, password); // Create a new user
         console.log('User:', user);
         setMessage('Registration successful! You can now log in.');
       }

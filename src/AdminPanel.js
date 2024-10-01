@@ -1,90 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { databases } from './appwrite';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { account } from './appwrite';
 
 function AdminPanel() {
-  const [feedbackList, setFeedbackList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-
-  const fetchFeedback = async () => {
-    setLoading(true);
+  // Use useCallback to memoize the function
+  const fetchUser = useCallback(async () => {
     try {
-      const response = await databases.listDocuments(
-        '66fa98c90015e4e80a0e',  // Replace with your Feedback Database ID
-        '66fa98d4000f2c8918ae'  // Replace with your Feedback Collection ID
-      );
-      setFeedbackList(response.documents);
+      const loggedInUser = await account.get();
+      setUser(loggedInUser);
     } catch (error) {
-      console.error('Error fetching feedback:', error);
-    } finally {
-      setLoading(false);
+      setMessage('You are not authenticated. Redirecting to login...');
+      console.error('Fetch user error:', error);
+      setTimeout(() => {
+        navigate('/admin/login');
+      }, 2000);
     }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this feedback?')) {
-      try {
-        await databases.deleteDocument(
-          '66fa98c90015e4e80a0e',  // Replace with your Feedback Database ID
-          '66fa98d4000f2c8918ae', // Replace with your Feedback Collection ID
-          id                        // Document ID to delete
-        );
-        fetchFeedback(); // Refresh the feedback list after deletion
-      } catch (error) {
-        console.error('Error deleting feedback:', error);
-      }
-    }
-  };
+  }, [navigate]); // Add navigate to dependencies
 
   useEffect(() => {
-    fetchFeedback(); // Fetch feedback when component mounts
-  }, []);
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+    fetchUser();
+  }, [fetchUser]); // Now fetchUser is included in the dependency array
 
   return (
     <div>
-      <h1>Admin Panel - Feedback List</h1>
-  
-      <div>
-        <label>Start Date:</label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
-        <label>End Date:</label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
-        <button onClick={fetchFeedback}>Filter</button>
-      </div>
-  
-      <ul>
-        {feedbackList
-          .filter(feedback => {
-            const feedbackDate = new Date(feedback.timestamp);
-            const isAfterStart = startDate ? feedbackDate >= new Date(startDate) : true;
-            const isBeforeEnd = endDate ? feedbackDate <= new Date(endDate) : true;
-            return isAfterStart && isBeforeEnd;
-          })
-          .map((feedback) => (
-            <li key={feedback.$id}>
-              <p><strong>Feedback:</strong> {feedback.feedback_text}</p>
-              <p><strong>Submitted on:</strong> {new Date(feedback.timestamp).toLocaleString()}</p>
-              <button onClick={() => handleDelete(feedback.$id)}>Delete</button>
-            </li>
-          ))}
-      </ul>
+      <h1>Admin Panel</h1>
+      {message && <p>{message}</p>}
+      {user ? (
+        <div>
+          <h2>Welcome, {user.name}</h2>
+          {/* Additional admin panel functionality goes here */}
+        </div>
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
-  
 }
 
 export default AdminPanel;

@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { databases, account } from './appwrite';
+import { databases, account } from './appwrite'; // Importing databases and account from appwrite.js
 import { useNavigate } from 'react-router-dom';
 
 function FeedbackForm() {
-  const [feedbackText, setFeedbackText] = useState('');
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
+  const [feedbackText, setFeedbackText] = useState(''); // State for feedback text
+  const [user, setUser] = useState(null); // State for user information
+  const navigate = useNavigate(); // Hook to programmatically navigate
 
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = async () => {
       try {
-        const userInfo = await account.get();
+        const userInfo = await account.get(); // Retrieve user info
         setUser(userInfo);  // Set user state if logged in
       } catch (error) {
         console.error('Not authenticated', error);
@@ -23,7 +23,7 @@ function FeedbackForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!feedbackText) return;
+    if (!feedbackText) return; // Prevent submission if feedback text is empty
     
     try {
       await databases.createDocument(
@@ -32,10 +32,10 @@ function FeedbackForm() {
         {
           feedback_text: feedbackText,
           timestamp: new Date().toISOString(),
-          userId: user.$id  // Associate feedback with user
+          userId: user.$id  // Associate feedback with user ID
         }
       );
-      setFeedbackText('');
+      setFeedbackText(''); // Clear the feedback text after submission
       alert('Feedback submitted successfully!');
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -43,7 +43,7 @@ function FeedbackForm() {
   };
 
   if (!user) {
-    return <p>Loading...</p>;
+    return <p>Loading...</p>; // Show loading text until user is authenticated
   }
 
   return (

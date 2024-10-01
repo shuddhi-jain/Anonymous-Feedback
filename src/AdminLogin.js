@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
-import { Client, Account } from 'appwrite';
 import { useNavigate } from 'react-router-dom';
-
-const client = new Client();
-
-client
-  .setEndpoint('https://cloud.appwrite.io/v1') // Your Appwrite Endpoint
-  .setProject('66fa9856001dec597c51');              // Your project ID
-
-const account = new Account(client);
+import { loginUser } from './appwrite'; // Import only loginUser from appwrite.js
 
 function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -16,16 +8,14 @@ function AdminLogin() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate(); // Hook to programmatically navigate
 
-
-  console.log('Email:', email);
-console.log('Password:', password);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await account.createSession(email, password);
-      setMessage('Login successful!');
-      navigate('/admin'); // Navigate to the Admin Panel after successful login
+      await loginUser(email, password); // Use the imported loginUser function
+      setMessage('Login successful! Redirecting to the Admin Panel...');
+      setTimeout(() => {
+        navigate('/admin'); // Navigate to the Admin Panel after successful login
+      }, 1000); // Delay navigation for 1 second for user feedback
     } catch (error) {
       setMessage('Error logging in. Please check your credentials.');
       console.error('Login error:', error);
